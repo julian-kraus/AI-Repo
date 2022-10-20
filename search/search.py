@@ -73,71 +73,34 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return [s, s, w, s, w, w, s, w]
 
-def minimize_path(problem, path, type):
-    new_path = []
-    node = get_end_of_transition(path[len(path) - 1], type)
-    counter = len(path)
-    while problem.getStartState() != node:
-        if counter == 0:
-            print("counter too small")
-            return new_path
-        counter -= 1
 
-        if get_end_of_transition(path[counter], type) == node:
-            new_path.insert(0, path[counter][1])
-            node = get_start_of_transition(path[counter], type)
-
-    return new_path
-
-def get_start_of_transition(node, type):
-    if type == "graph":
-        start = str(node[1]).split(":")[1]
-        return str(start).split("-")[0]
+def search_algorithm(struct, problem, algorithm):
+    if algorithm == "Dijkstra":
+        struct.push((problem.getStartState(), [], 0), 0)
     else:
-        if node[1] == "South":
-            return tuple((node[0][0], node[0][1] - 1))
-        elif node[1] == "North":
-            return tuple((node[0][0], node[0][1] + 1))
-        elif node[1] == "West":
-            return tuple((node[0][0] + 1, node[0][1]))
-        elif node[1] == "East":
-            return tuple((node[0][0] - 1, node[0][1]))
-
-def get_end_of_transition(node, type):
-    if type == "graph":
-        return str(node[1]).split(">")[1]
-    else:
-        return node[0]
-
-def search_algorithm(struct, problem, type):
-    struct.push(problem.getStartState())
-    path = []
+        struct.push((problem.getStartState(), [], 0))
     visited_node = []
 
     while not struct.isEmpty():
-        node = struct.pop()
-        if problem.getStartState() == node:
-            end_node = node
-        else:
-            end_node = get_end_of_transition(node, type)
-            path.append(node)
+        node, path, cost = struct.pop()
 
-        visited_node.append(end_node)
+        visited_node.append(node)
 
-        if problem.isGoalState(end_node):
-            return minimize_path(problem, path, type)
-        successors = problem.getSuccessors(end_node)
+        if problem.isGoalState(node):
+            return path
+        successors = problem.getSuccessors(node)
         for succ in successors:
-            if get_end_of_transition(succ, type) not in visited_node:
-                struct.push(succ)
-
-    return " ".join(path)
-
-def get_type(node):
-    if isinstance(node, str):
-        return "graph"
-    else:
-        return "grid"
+            if succ[0] not in visited_node:
+                if algorithm == "BFS" and not succ[0] not in (n[0] for n in struct.list):
+                    pass
+                if algorithm == "Dijkstra" and not succ[0] not in (n[2][0] for n in struct.heap):
+                    pass
+                else:
+                    if algorithm == "Dijkstra":
+                        struct.push((succ[0], path + [succ[1]], cost), cost + succ[-1])
+                    else:
+                        struct.push((succ[0], path + [succ[1]], cost))
+    return []
 
 def depthFirstSearch(problem):
     """
@@ -154,19 +117,19 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    return search_algorithm(util.Stack(), problem, get_type(problem.getStartState()))
+    return search_algorithm(util.Stack(), problem, "DFS")
 
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    return 10/0 # search_algorithm(util.Queue(), problem, get_type(problem.getStartState()))
+    return search_algorithm(util.Queue(), problem, "BFS")
 
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return search_algorithm(util.PriorityQueue(), problem, "Dijkstra")
 
 
 def nullHeuristic(state, problem=None):
