@@ -73,6 +73,14 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return [s, s, w, s, w, w, s, w]
 
+def check_for_other_entries(node, cost, struct):
+    for elem in struct.heap:
+        elem_name = elem[2][0]
+        elem_cost = elem[2][2]
+        if elem_name == node[0] and elem_cost <= node[-1] + cost:
+            return True
+
+    return False
 
 def search_algorithm(struct, problem, algorithm):
     if algorithm == "Dijkstra":
@@ -93,13 +101,13 @@ def search_algorithm(struct, problem, algorithm):
             if succ[0] not in visited_node:
                 if algorithm == "BFS" and not succ[0] not in (n[0] for n in struct.list):
                     pass
-                if algorithm == "Dijkstra" and not succ[0] not in (n[2][0] for n in struct.heap):
+                elif algorithm == "Dijkstra" and check_for_other_entries(succ, cost, struct):
                     pass
                 else:
                     if algorithm == "Dijkstra":
-                        struct.push((succ[0], path + [succ[1]], cost), cost + succ[-1])
+                        struct.push((succ[0], path + [succ[1]], cost + succ[-1]), cost + succ[-1])
                     else:
-                        struct.push((succ[0], path + [succ[1]], cost))
+                        struct.push((succ[0], path + [succ[1]], cost + succ[-1]))
     return []
 
 def depthFirstSearch(problem):
@@ -143,7 +151,7 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return search_algorithm(util.PriorityQueueWithFunction((lambda i: i[2] + heuristic(i))), problem, "A*")
 
 
 # Abbreviations
