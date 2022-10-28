@@ -288,7 +288,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        self.start = (self.startingPosition, [False, False, False, False])
+        self.start = (self.startingPosition, [False, False, False, False])  # we are defining the start as the position and the array that keeps
+                                                                            # track of the found corners
     def getStartState(self):
         """
         Returns the start state (in your state space, not the full Pacman state
@@ -302,6 +303,7 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        # Since we save which corners we visited in the state, we can just itterate through it and check if we visited all of them
         pos, corner_visit = state
         for c in corner_visit:
             if not c:
@@ -329,6 +331,9 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            # we make a new corner array (to have different objects)
+            # check whether the new position would be a corner, if yes mark it in the corner array.
+            # add our new successor, to the array that gets returned
             pos, corner_visit = state
             corner_new = corner_visit.copy()
 
@@ -376,6 +381,7 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
+    # we look for the corner that is the farthest away, and return that distance as a heuristic, so we don't get to 0 before all corners are found
     pos, visited = state
     dis = []
     for i in range(4):
@@ -479,6 +485,9 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
+    # we do basically the same as for the corner search agent. We go through all food sources, just in this case we look for the real maze distance
+    # and then use the food source distance, where we have to go the furthest as a heuristic
+    # Then we only reach 0, when we arrive at the last food source
     position, foodGrid = state
     dis = []
     for i in range(foodGrid.height - 1):
@@ -553,6 +562,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
 
         "*** YOUR CODE HERE ***"
+        # Check if we have found food
         return self.food[state[0]][state[1]]
 
     def getWalls(self):

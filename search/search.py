@@ -82,30 +82,42 @@ def check_for_other_entries(node, cost, struct):
 
     return False
 
+# general function for all search types adapted to each Algorithm (f.e sometimes need costs as input aswell)
 def search_algorithm(struct, problem, algorithm):
     if algorithm == "Dijkstra":
         struct.push([problem.getStartState(), [], 0], 0)
     else:
         struct.push([problem.getStartState(), [], 0])
-    visited_node = []
+    visited_node = [] #list of visited nodes
 
+    # as long as struct is not empty adds visited nodes to list
     while not struct.isEmpty():
         node, path, cost = struct.pop()
 
-        visited_node.append(node)
+        visited_node.append(node) #adds visited node
 
+        # checks if initial state is goal state
         if problem.isGoalState(node):
             return path
+        # find neighbours of current node
         successors = problem.getSuccessors(node)
+
         for succ in successors:
             if succ[0] not in visited_node:
+                # Checks if we already have the new node in our queue (BFS), so we are going to
+                # look at it before the node we would add now and don't need to add the node again (since we don't visit nodes twice)
                 if algorithm == "BFS" and not succ[0] not in (n[0] for n in struct.list):
                     pass
+                # for A* and Dijkstra check if there is a shorter (lower cost) way to our node
+                # already in list, if so we don´t have to add it again
                 elif (algorithm == "Dijkstra" or algorithm == "A*") and check_for_other_entries(succ, cost, struct):
                     pass
                 else:
+                    # Just to handle the priority queue of Dijkstra
                     if algorithm == "Dijkstra":
+
                         struct.push([succ[0], path + [succ[1]], cost + succ[-1]], cost + succ[-1])
+                    # build path 
                     else:
                         struct.push([succ[0], path + [succ[1]], cost + succ[-1]])
     return []
